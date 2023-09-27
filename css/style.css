@@ -151,10 +151,16 @@ main {
 	color: var(--secondary-text-color);
 }
 
+.word.word-hover {
+	outline: transparent 3px;
+	transition: background-color 0.1s ease;
+	transition: outline-color 0.1s;
+}
+
 .word.word-hover:hover {
-	background-color: lightgray;
+	background-color: #e0e0e6;
 	border-radius: 8px;
-	outline: 3px lightgray solid;
+	outline: 3px #e0e0e6 solid;
 	cursor: pointer;
 }
 
@@ -190,7 +196,7 @@ main {
 }
 
 .word-popup .word-list > li:hover {
-	background-color: lightgray;
+	background-color: #e0e0e6;
 }
 
 .footnote {
