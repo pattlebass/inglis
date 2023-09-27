@@ -1,3 +1,8 @@
+@font-face {
+	font-family: "Open Sans";
+	src: url("/fonts/OpenSans-VariableFont_wdth\,wght.ttf");
+}
+
 :root {
 	--main-text-color: rgb(60, 64, 67);
 	--secondary-text-color: rgb(95, 99, 104);
@@ -6,7 +11,7 @@
 
 body {
 	margin: 0;
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-family: "Open Sans", Tahoma, Geneva, Verdana, sans-serif;
 
 	color: var(--main-text-color);
 }
