@@ -4,7 +4,13 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="stylesheet" href="css/style.css" />
-		<link rel="preload" type=”application/json” href="/CMU_dict.json" as="fetch"
+		<!-- prettier-ignore -->
+		<link rel="modulepreload" href="/js/token.js" as="script" crossorigin="anonymous" />
+		<!-- prettier-ignore -->
+		<link rel="preload" type=”application/json” href="/json/romanian_sounds.json"
+		as="fetch" crossorigin="anonymous" />
+		<!-- prettier-ignore -->
+		<link rel="preload" type=”application/json” href="/json/CMU_dict.json" as="fetch"
 		crossorigin="anonymous" />
 		<title>
 			Ingliș | Pronunță cuvinte în engleză folosind sunete din română
@@ -82,14 +88,16 @@
 					</div>
 				</div>
 			</div>
-			<ul class="footnote">
-				Note:
-				<li>
-					Unele cuvinte au mai multe pronunții. Apasă pe un cuvânt pentru a o
-					selecta pe cea dorită.
-				</li>
-				<li>Pronunția audio poate să nu corespundă cu cea scrisă.</li>
-			</ul>
+			<figure class="footnote">
+				<figcaption>Note:</figcaption>
+				<ul>
+					<li>
+						Unele cuvinte au mai multe pronunții. Apasă pe un cuvânt pentru a o
+						selecta pe cea dorită.
+					</li>
+					<li>Pronunția audio poate să nu corespundă cu cea scrisă.</li>
+				</ul>
+			</figure>
 		</main>
 	</body>
 	<script src="js/script.js" type="module"></script>

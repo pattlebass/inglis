@@ -7,6 +7,7 @@ const ttsButton = document.querySelector("#tts");
 const copyOutputButton = document.querySelector("#copy-output");
 
 let map;
+let romanianSounds;
 const tokens = [];
 
 init();
@@ -22,8 +23,12 @@ async function init() {
 		ttsButton.style.display = "none";
 	}
 
-	const response = await fetch("/CMU_dict.json");
-	map = await response.json();
+	const responses = await Promise.all([
+		fetch("/json/CMU_dict.json"),
+		fetch("/json/romanian_sounds.json"),
+	]);
+	map = await responses[0].json();
+	romanianSounds = await responses[1].json();
 
 	onInput();
 	transform();
@@ -49,26 +54,25 @@ function transform() {
 			continue;
 		}*/
 
-		const token = new Token();
-		token.input = word;
-		token.outputs = toPhonetic(word);
-		if (!isAlpha(word)) {
-			token.highlight = false;
-		}
-		token.chosenOutput = token.outputs[0];
+		const token = tokenize(word);
 		tokens.push(token);
 
 		const wordElementContainer = document.createElement("div");
 		wordElementContainer.classList.add("word-container");
 
+		// Text element
 		const wordTextElement = document.createElement("div");
-		wordTextElement.textContent = toPhonetic(word)[0];
+		wordTextElement.textContent = token.outputs[0];
 		wordTextElement.classList.add("word");
 		if (token.highlight && token.outputs.length > 1) {
 			wordTextElement.classList.add("word-hover");
 		}
+		if (token.unknown) {
+			wordTextElement.classList.add("word-unknown");
+		}
 		wordElementContainer.appendChild(wordTextElement);
 
+		// Alternative pronunciations
 		if (token.outputs.length > 1) {
 			const wordPopup = document.createElement("span");
 			wordPopup.classList.add("word-popup");
@@ -100,67 +104,37 @@ function transform() {
 	}
 }
 
-function toPhonetic(word) {
+function tokenize(word) {
 	word = word.toLowerCase();
 
+	const token = new Token();
+	token.input = word;
 	if (word in map) {
-		return map[word].map((e) => toBalta(e).replaceAll(" ", ""));
+		token.outputs = map[word].map((e) =>
+			toRomanianSounds(e).replaceAll(" ", "")
+		);
+	} else {
+		if (isAlpha(word)) {
+			token.unknown = true;
+		}
+		token.outputs = [word];
 	}
 
-	if (isAlpha(word)) {
-		return [word + "(?)"];
+	if (!isAlpha(word)) {
+		token.highlight = false;
 	}
 
-	return [word];
+	token.chosenOutput = token.outputs[0];
+
+	return token;
 }
 
-function toBalta(word) {
-	const mapBalta = {
-		eh1: "e",
-		ey1: "ei",
-		ey2: "ei",
-		ay1: "ai",
-		ao1: "oa",
-		ao2: "oa",
-		er0: "ăr",
-		uh1: "u",
-		ae1: "ea",
-		iy0: "i",
-		dh: "d",
-		jh: "j",
-		uw1: "u",
-		ow1: "ou",
-		y: "i",
-		aw1: "au",
-		ah0: "ă",
-		ah1: "a",
-		ih1: "i",
-		hh: "h",
-		er1: "ăr",
-		aa1: "a",
-		ay2: "ai",
-		iy2: "i",
-		ih1: "i",
-		sh: "ș",
-		ih0: "i",
-		ng: "n",
-		uh2: "u",
-		uh1: "i",
-		w: "u",
-		ch: "ci",
-		iy1: "i",
-		uw0: "u",
-		ow2: "ou",
-		ao1: "au",
-		ow0: "ou",
-		ih2: "i",
-	};
-
+function toRomanianSounds(word) {
 	let transformed = "";
 
 	for (const sound of word.split(" ")) {
-		if (sound in mapBalta) {
-			transformed += mapBalta[sound] + " ";
+		if (sound in romanianSounds) {
+			transformed += romanianSounds[sound] + " ";
 		} else {
 			transformed += sound;
 		}

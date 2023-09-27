@@ -141,6 +141,11 @@ main {
 	word-break: break-all;
 }
 
+.word.word-unknown {
+	font-style: italic;
+	color: var(--secondary-text-color);
+}
+
 .word.word-hover:hover {
 	background-color: lightgray;
 	border-radius: 8px;
@@ -185,6 +190,7 @@ main {
 
 .footnote {
 	margin: 50px 0;
+	padding: 16px;
 	font-style: italic;
 	color: var(--secondary-text-color);
 }
