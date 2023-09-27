@@ -3,26 +3,40 @@ import { Token } from "./token.js";
 const inputArea = document.querySelector("#input");
 const outputArea = document.querySelector("#output");
 const wordCount = document.querySelector("#word-count");
+const ttsButton = document.querySelector("#tts");
 const copyOutputButton = document.querySelector("#copy-output");
 
 let map;
-let output = "";
 const tokens = [];
 
 init();
 
 async function init() {
 	inputArea.addEventListener("keyup", transform);
-	inputArea.addEventListener("keyup", () => {
-		wordCount.textContent = `${inputArea.value.length} / 5000`;
-	});
+	inputArea.addEventListener("keyup", onInput);
 	copyOutputButton.onclick = copyOutput;
+
+	if ("speechSynthesis" in window) {
+		ttsButton.onclick = tts;
+	} else {
+		ttsButton.style.display = "none";
+	}
 
 	const response = await fetch("/CMU_dict.json");
 	map = await response.json();
+
+	onInput();
+	transform();
+}
+
+function onInput() {
 	wordCount.textContent = `${inputArea.value.length} / 5000`;
 
-	transform();
+	if (inputArea.value.length === 0) {
+		ttsButton.style.display = "none";
+	} else {
+		ttsButton.style.display = "";
+	}
 }
 
 function transform() {
@@ -83,7 +97,6 @@ function transform() {
 		}
 
 		outputArea.appendChild(wordElementContainer);
-		output += wordTextElement.textContent;
 	}
 }
 
@@ -164,6 +177,14 @@ function copyOutput() {
 	}
 
 	navigator.clipboard.writeText(output);
+}
+
+function tts() {
+	var msg = new SpeechSynthesisUtterance();
+	msg.text = inputArea.value;
+	msg.lang = "en";
+	msg.rate = 0.7;
+	window.speechSynthesis.speak(msg);
 }
 
 const isAlpha = (str) => /^[a-z]+$/gi.test(str);
