@@ -48,7 +48,12 @@ function transform() {
 	outputArea.innerHTML = "";
 	tokens.length = 0;
 
-	for (const word of inputArea.value.trim().replaceAll("\n", " ").split(/\b/)) {
+	const inputText = inputArea.value
+		.trim()
+		.replaceAll("\n", " ")
+		.split(/\b(?<!\')\b(?!\')/);
+
+	for (const word of inputText) {
 		/*if (word.includes("\n")) {
 			outputArea.appendChild(document.createElement("br"));
 			continue;
