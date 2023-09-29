@@ -24,8 +24,8 @@ async function init() {
 	}
 
 	const responses = await Promise.all([
-		fetch("/json/CMU_dict.json"),
-		fetch("/json/romanian_sounds.json"),
+		fetch("/inglis/json/CMU_dict.json"),
+		fetch("/inglis/json/romanian_sounds.json"),
 	]);
 	map = await responses[0].json();
 	romanianSounds = await responses[1].json();
