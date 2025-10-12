@@ -1,13 +1,15 @@
 import { Token } from "./token.js";
 
+const inputLanguageSelect = document.querySelector("#input-lang");
 const inputArea = document.querySelector("#input");
 const outputArea = document.querySelector("#output");
 const wordCount = document.querySelector("#word-count");
 const ttsButton = document.querySelector("#tts");
 const copyOutputButton = document.querySelector("#copy-output");
 
-let map;
-let romanianSounds;
+let map = { ro: {} };
+let inputLanguage = inputLanguageSelect.value;
+const outputLanguage = "ro";
 const tokens = [];
 
 init();
@@ -15,6 +17,7 @@ init();
 async function init() {
 	inputArea.addEventListener("keyup", transform);
 	inputArea.addEventListener("keyup", onInput);
+	inputLanguageSelect.onchange = onChangeLanguage;
 	copyOutputButton.onclick = copyOutput;
 
 	if ("speechSynthesis" in window) {
@@ -24,11 +27,11 @@ async function init() {
 	}
 
 	const responses = await Promise.all([
-		fetch("/inglis/json/CMU_dict.json"),
-		fetch("/inglis/json/romanian_sounds.json"),
+		fetch("/json/dictionaries/ro/en_US.json"),
+		fetch("/json/dictionaries/ro/de.json"),
 	]);
-	map = await responses[0].json();
-	romanianSounds = await responses[1].json();
+	map["ro"]["en"] = await responses[0].json();
+	map["ro"]["de"] = await responses[1].json();
 
 	onInput();
 	transform();
@@ -114,10 +117,8 @@ function tokenize(word) {
 
 	const token = new Token();
 	token.input = word;
-	if (word in map) {
-		token.outputs = map[word].map((e) =>
-			toRomanianSounds(e).replaceAll(" ", "")
-		);
+	if (word in map[outputLanguage][inputLanguage]) {
+		token.outputs = map[outputLanguage][inputLanguage][word];
 	} else {
 		if (isAlpha(word)) {
 			token.unknown = true;
@@ -134,18 +135,9 @@ function tokenize(word) {
 	return token;
 }
 
-function toRomanianSounds(word) {
-	let transformed = "";
-
-	for (const sound of word.split(" ")) {
-		if (sound in romanianSounds) {
-			transformed += romanianSounds[sound] + " ";
-		} else {
-			transformed += sound;
-		}
-	}
-
-	return transformed;
+function onChangeLanguage() {
+	inputLanguage = inputLanguageSelect.value;
+	transform();
 }
 
 function copyOutput() {
@@ -161,7 +153,7 @@ function copyOutput() {
 function tts() {
 	var msg = new SpeechSynthesisUtterance();
 	msg.text = inputArea.value;
-	msg.lang = "en";
+	msg.lang = inputLanguage;
 	msg.rate = 0.7;
 	window.speechSynthesis.speak(msg);
 }
