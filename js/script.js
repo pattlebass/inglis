@@ -51,65 +51,69 @@ function transform() {
 	outputArea.innerHTML = "";
 	tokens.length = 0;
 
-	const inputText = inputArea.value
-		.trim()
-		.replaceAll("\n", " ")
-		.split(/\b(?<!\')\b(?!\')/);
+	const inputText = inputArea.value.trim().match(/[\p{L}]+(?:'\p{L}+)?|./gsu) || "";
 
 	for (const word of inputText) {
-		/*if (word.includes("\n")) {
-			outputArea.appendChild(document.createElement("br"));
-			continue;
-		}*/
-
-		const token = tokenize(word);
+		const token = tokenize(word.replaceAll("\n", ""));
 		tokens.push(token);
 
-		const wordElementContainer = document.createElement("div");
-		wordElementContainer.classList.add("word-container");
+		const tokenElement = getTokenElement(token);
+		outputArea.appendChild(tokenElement);
 
-		// Text element
-		const wordTextElement = document.createElement("div");
-		wordTextElement.textContent = token.outputs[0];
-		wordTextElement.classList.add("word");
-		if (token.highlight && token.outputs.length > 1) {
-			wordTextElement.classList.add("word-hover");
-		}
-		if (token.unknown) {
-			wordTextElement.classList.add("word-unknown");
-		}
-		wordElementContainer.appendChild(wordTextElement);
-
-		// Alternative pronunciations
-		if (token.outputs.length > 1) {
-			const wordPopup = document.createElement("span");
-			wordPopup.classList.add("word-popup");
-
-			const outputList = document.createElement("ul");
-			outputList.classList.add("word-list");
-			wordPopup.appendChild(outputList);
-
-			for (const output of token.outputs) {
-				const outputOption = document.createElement("li");
-				outputOption.textContent = output;
-
-				outputOption.onclick = () => {
-					wordTextElement.textContent = output;
-					token.chosenOutput = output;
-				};
-
-				outputList.appendChild(outputOption);
+		for (const char of word) {
+			if (char === "\n") {
+				tokens.push(tokenize("\n"));
+				outputArea.appendChild(document.createElement("br"));
 			}
+		}
+	}
+}
 
-			wordElementContainer.appendChild(wordPopup);
+function getTokenElement(token) {
+	const wordElementContainer = document.createElement("div");
+	wordElementContainer.classList.add("word-container");
 
-			wordElementContainer.onclick = () => {
-				wordPopup.classList.toggle("show");
+	// Text element
+	const wordTextElement = document.createElement("div");
+	wordTextElement.textContent = token.outputs[0];
+	wordTextElement.classList.add("word");
+	if (token.highlight && token.outputs.length > 1) {
+		wordTextElement.classList.add("word-hover");
+	}
+	if (token.unknown) {
+		wordTextElement.classList.add("word-unknown");
+	}
+	wordElementContainer.appendChild(wordTextElement);
+
+	// Alternative pronunciations
+	if (token.outputs.length > 1) {
+		const wordPopup = document.createElement("span");
+		wordPopup.classList.add("word-popup");
+
+		const outputList = document.createElement("ul");
+		outputList.classList.add("word-list");
+		wordPopup.appendChild(outputList);
+
+		for (const output of token.outputs) {
+			const outputOption = document.createElement("li");
+			outputOption.textContent = output;
+
+			outputOption.onclick = () => {
+				wordTextElement.textContent = output;
+				token.chosenOutput = output;
 			};
+
+			outputList.appendChild(outputOption);
 		}
 
-		outputArea.appendChild(wordElementContainer);
+		wordElementContainer.appendChild(wordPopup);
+
+		wordElementContainer.onclick = () => {
+			wordPopup.classList.toggle("show");
+		};
 	}
+
+	return wordElementContainer;
 }
 
 function tokenize(word) {
@@ -120,13 +124,13 @@ function tokenize(word) {
 	if (word in map[outputLanguage][inputLanguage]) {
 		token.outputs = map[outputLanguage][inputLanguage][word];
 	} else {
-		if (isAlpha(word)) {
+		if (hasLetter(word)) {
 			token.unknown = true;
 		}
 		token.outputs = [word];
 	}
 
-	if (!isAlpha(word)) {
+	if (!hasLetter(word)) {
 		token.highlight = false;
 	}
 
@@ -158,4 +162,4 @@ function tts() {
 	window.speechSynthesis.speak(msg);
 }
 
-const isAlpha = (str) => /^[a-z]+$/gi.test(str);
+const hasLetter = (str) => /\p{L}/u.test(str);
