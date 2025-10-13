@@ -15,13 +15,13 @@ const tokens = [];
 init();
 
 async function init() {
-	inputArea.addEventListener("keyup", transform);
-	inputArea.addEventListener("keyup", onInput);
-	inputLanguageSelect.onchange = onChangeLanguage;
-	copyOutputButton.onclick = copyOutput;
+	inputArea.addEventListener("input", debounce(transform, 300));
+	inputArea.addEventListener("input", onInput);
+	inputLanguageSelect.addEventListener("change", onChangeLanguage);
+	copyOutputButton.addEventListener("click", copyOutput);
 
 	if ("speechSynthesis" in window) {
-		ttsButton.onclick = tts;
+		ttsButton.addEventListener("click", tts);
 	} else {
 		ttsButton.style.display = "none";
 	}
@@ -163,3 +163,16 @@ function tts() {
 }
 
 const hasLetter = (str) => /\p{L}/u.test(str);
+
+// https://dev.to/jeetvora331/javascript-debounce-easiest-explanation--29hc
+function debounce(mainFunction, delay) {
+	let timer;
+
+	return function (...args) {
+		clearTimeout(timer);
+
+		timer = setTimeout(() => {
+			mainFunction(...args);
+		}, delay);
+	};
+}
