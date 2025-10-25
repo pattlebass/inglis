@@ -54,7 +54,7 @@ function transform() {
 	const inputText = inputArea.value.trim().match(/[\p{L}]+(?:'\p{L}+)?|./gsu) || "";
 
 	for (const word of inputText) {
-		const token = tokenize(word.replaceAll("\n", ""));
+		const token = createToken(word.replaceAll("\n", ""));
 		tokens.push(token);
 
 		const tokenElement = getTokenElement(token);
@@ -62,7 +62,7 @@ function transform() {
 
 		for (const char of word) {
 			if (char === "\n") {
-				tokens.push(tokenize("\n"));
+				tokens.push(createToken("\n"));
 				outputArea.appendChild(document.createElement("br"));
 			}
 		}
@@ -116,21 +116,26 @@ function getTokenElement(token) {
 	return wordElementContainer;
 }
 
-function tokenize(word) {
-	word = word.toLowerCase();
+function createToken(word) {
+	const lowerWord = word.toLowerCase();
+	const dict = map[outputLanguage][inputLanguage];
 
 	const token = new Token();
 	token.input = word;
-	if (word in map[outputLanguage][inputLanguage]) {
-		token.outputs = map[outputLanguage][inputLanguage][word];
+
+	if (lowerWord in dict) {
+		// Known word
+		const entry = dict[lowerWord];
+		token.outputs = isUpperCase(word[0]) ? entry.map((output) => capitalize(output)) : entry;
 	} else {
-		if (hasLetter(word)) {
+		// Unknown word
+		if (hasLetter(lowerWord)) {
 			token.unknown = true;
 		}
 		token.outputs = [word];
 	}
 
-	if (!hasLetter(word)) {
+	if (!hasLetter(lowerWord)) {
 		token.highlight = false;
 	}
 
@@ -163,6 +168,14 @@ function tts() {
 }
 
 const hasLetter = (str) => /\p{L}/u.test(str);
+
+function isUpperCase(str) {
+	return str === str.toUpperCase() && str !== str.toLowerCase();
+}
+
+function capitalize(str) {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 // https://dev.to/jeetvora331/javascript-debounce-easiest-explanation--29hc
 function debounce(mainFunction, delay) {
