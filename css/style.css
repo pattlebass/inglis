@@ -34,7 +34,7 @@ nav .logo {
 }
 
 nav .motto {
-	font-style: italic;
+	color: var(--secondary-text-color);
 }
 
 main {
@@ -74,6 +74,7 @@ main {
 	height: 100%;
 	overflow: hidden;
 	resize: none;
+	field-sizing: content;
 
 	border-right: #dcdcdc solid 1px;
 	background-color: transparent;
@@ -202,7 +203,6 @@ main {
 .footnote {
 	margin: 50px 0;
 	padding: 16px;
-	font-style: italic;
 	color: var(--secondary-text-color);
 }
 
